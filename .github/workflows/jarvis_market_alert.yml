@@ -1,0 +1,37 @@
+name: JARVIS Market Screener & Phone Alerts
+
+on:
+  workflow_dispatch: # Îți permite să îl pornești manual oricând de pe telefon din aplicația GitHub
+  schedule:
+    # Rulează din 15 în 15 minute în timpul orelor de tranzacționare SUA (16:00 - 23:45 ora României)
+    - cron: "*/15 13-21 * * 1-5"
+    # Rulează și pentru Bursa de Valori București (10:30 și 14:30 ora României)
+    - cron: "30 7,11 * * 1-5"
+
+jobs:
+  scan-market:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restaurează cache-ul alertelor trimise azi
+        uses: actions/cache@v4
+        with:
+          path: alerte_trimise_cache.json
+          key: jarvis-alerte-${{ github.run_id }}
+          restore-keys: |
+            jarvis-alerte-
+
+      - name: Instalează librăriile financiare
+        run: pip install --quiet yfinance pandas numpy requests
+
+      - name: Rulează JARVIS Screener
+        env:
+          NTFY_CANAL: ${{ secrets.NTFY_CANAL }}
+        run: python github_screener.py

@@ -1,0 +1,7 @@
+*
+!custom_tools.py
+!github_screener.py
+!watchlist.json
+!.github/
+!.github/workflows/
+!.github/workflows/jarvis_market_alert.yml
